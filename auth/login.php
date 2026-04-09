@@ -16,7 +16,7 @@ require_once '../controllers/loginController.php';
     <main class="auth-main">
         <div class="auth-left">
             <div class="left-cont">
-                <div class="auth-title">Ласкаво<br>просимо назад</div>
+                <div class="auth-title">Ласкаво<br>просимо</div>
                 <div class="auth-text">Увійдіть, щоб переглянути свої замовлення, кошик та улюблені вироби майстрів.</div>
                 <div class="info-label light" style="margin-top: 50px;">◆ Ваш світ кераміки</div>
                 <div class="auth-text margin">Відкрийте для себе тисячі унікальних робіт.</div>
