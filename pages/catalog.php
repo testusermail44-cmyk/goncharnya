@@ -1,5 +1,5 @@
 <?php
-require_once '../controllers/CatalogController.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'../controllers/CatalogController.php';
 ?>
 <html lang="uk">
 <head>
