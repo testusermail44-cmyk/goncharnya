@@ -20,7 +20,7 @@ if (isset($_POST['review'])) {
 }
 if (isset($_POST['product'])) {
     if (!isset($_SESSION['pottery_user']['id'])) {
-        header('Location: ../auth/logun.php');
+        header('Location: ../auth/login.php');
         exit();
     }
     $cartProduct = ['product' => $_POST['product'], 'count' => $_POST['counter']];
