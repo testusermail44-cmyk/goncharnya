@@ -1,5 +1,5 @@
 <?php
-require_once '../controllers/сatalogController.php';
+require_once '../controllers/catalogController.php';
 ?>
 <html lang="uk">
 <head>
