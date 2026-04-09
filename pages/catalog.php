@@ -1,6 +1,5 @@
 <?php
-
-require_once __DIR__ . '../controllers/сatalogController.php';
+require_once '../controllers/сatalogController.php';
 ?>
 <html lang="uk">
 <head>
