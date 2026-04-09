@@ -1,5 +1,7 @@
 <?php
 echo __DIR__;
+var_dump(file_exists(__DIR__ . '/../controllers/CatalogController.php'));
+var_dump(scandir(__DIR__ . '/../'));
 require_once __DIR__ . '/../controllers/CatalogController.php';
 ?>
 <html lang="uk">
