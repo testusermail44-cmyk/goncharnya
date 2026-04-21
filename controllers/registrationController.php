@@ -19,13 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (strlen($password) < 6) {
         $error = "Пароль повинен містити мінімум 6 символів";
     }
-    if ($password !== $confirm) {
+    else if ($password !== $confirm) {
         $error = "Паролі не співпадають";
     }
-    if (checEmail($pdo, $email)) {
+    else if (checkEmail($pdo, $email)) {
         $error = 'Такий Email вже використовується';
     }
-    if ($password == $confirm && strlen($password) >= 6) {
+    else {
         if (addUser($pdo, $name, $surname, $password, $email)){
             header('Location: login.php');
             exit;

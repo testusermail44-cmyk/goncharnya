@@ -4,10 +4,10 @@ function getUsers($pdo){
     $stmt->execute();
     return $stmt->fetchAll();
 }
-function checEmail($pdo, $email){
+function checkEmail($pdo, $email){
     $stmt = $pdo->prepare("SELECT email FROM users WHERE EMAIL = ?");
     $stmt->execute([$email]);
-    return !!$stmt->fetch();
+    return (bool)$stmt->fetch();
 }
 function addUser($pdo, $name, $surname, $pass, $email)
 {
@@ -96,43 +96,79 @@ function updateUserAvatar($pdo, $userId, $file, $currentImage) {
     if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
         return ['success' => false, 'message' => 'Будь ласка, оберіть файл для завантаження'];
     }
+
     $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
     if (!in_array($file['type'], $allowedTypes)) {
         return ['success' => false, 'message' => 'Дозволені формати: JPEG, PNG, WEBP'];
     }
-    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $filename = 'user_' . $userId . '_' . time() . '.' . $extension;
-    $uploadPath = '../public/images/users/' . $filename;
-    if (!is_dir('../public/images/users')) {
-        mkdir('../public/images/users', 0777, true);
-    }
+
+    $apiKey = getenv('IMG');
     
-    if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-        if ($currentImage && $currentImage !== 'user.png' && file_exists('../public/images/users/' . $currentImage)) {
-            unlink('../public/images/users/' . $currentImage);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://api.imgbb.com/1/upload?key=' . $apiKey);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, [
+        'image' => base64_encode(file_get_contents($file['tmp_name'])),
+    ]);
+    
+    $response = curl_exec($ch);
+    $ch = null;
+    $resData = json_decode($response, true);
+
+    if (isset($resData['data']['url'])) {
+        $newImageUrl = $resData['data']['url'];
+
+        if ($currentImage && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
+            $oldPath = '../public/images/users/' . $currentImage;
+            if (file_exists($oldPath)) unlink($oldPath);
         }
+
         $stmt = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
-        if ($stmt->execute([$filename, $userId])) {
-            $_SESSION['pottery_user']['image'] = $filename;
-            return ['success' => true, 'image' => $filename];
+        if ($stmt->execute([$newImageUrl, $userId])) {
+            $_SESSION['pottery_user']['image'] = $newImageUrl;
+            return ['success' => true, 'image' => $newImageUrl];
         }
         return ['success' => false, 'message' => 'Помилка при збереженні фото в БД'];
     }
     
-    return ['success' => false, 'message' => 'Помилка при завантаженні файлу'];
+    return ['success' => false, 'message' => 'Помилка при завантаженні на ImgBB'];
 }
 
 function deleteUserAvatar($pdo, $userId, $currentImage) {
-    if ($currentImage && $currentImage !== 'user.png' && file_exists('../public/images/users/' . $currentImage)) {
-        unlink('../public/images/users/' . $currentImage);
+    if ($currentImage && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
+        $oldPath = '../public/images/users/' . $currentImage;
+        if (file_exists($oldPath)) unlink($oldPath);
     }
     
-    $stmt = $pdo->prepare("UPDATE users SET image = NULL WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE users SET image = 'user.png' WHERE id = ?");
     if ($stmt->execute([$userId])) {
-        $_SESSION['pottery_user']['image'] = null;
+        $_SESSION['pottery_user']['image'] = 'user.png';
         return ['success' => true];
     }
     
     return ['success' => false, 'message' => 'Помилка при видаленні аватара'];
+}
+
+if (isset($_POST['update_avatar'])) {
+    $result = updateUserAvatar($pdo, $userId, $_FILES['avatar'], $user->image);
+
+    if ($result['success']) {
+        header('Location: settings.php');
+        exit;
+    } else {
+        $error = $result['message'];
+    }
+}
+
+if (isset($_POST['delete_avatar'])) {
+    $result = deleteUserAvatar($pdo, $userId, $user->image);
+
+    if ($result['success']) {
+        header('Location: settings.php');
+        exit;
+    } else {
+        $error = $result['message'];
+    }
 }
 ?>

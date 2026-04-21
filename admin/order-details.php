@@ -10,9 +10,9 @@ if (!isset($_SESSION['pottery_user']) || $_SESSION['pottery_user']['admin'] != 1
 $id = $_GET['id'];
 $order = getOrderInfo($pdo, $id);
 $items = getOrderItems($pdo, $id);
-if (isset($_POST['status'])){
+if (isset($_POST['status'])) {
     setStatus($pdo, $_POST['status'], $id);
-    Header("Location: order-details.php?id=".$id);
+    Header("Location: order-details.php?id=" . $id);
     exit();
 }
 ?>
@@ -46,7 +46,7 @@ if (isset($_POST['status'])){
                     </div>
                     <div class="user-order-info-container">
                         <div class="light-text">ОПЛАТА</div>
-                        <div class="dark"><?= $order->payment==1? 'Накладний платіж' : 'Переказ на рахунок' ?></div>
+                        <div class="dark"><?= $order->payment == 1 ? 'Накладний платіж' : 'Переказ на рахунок' ?></div>
                     </div>
                 </div>
                 <div class="light-text">ТОВАРИ</div>
@@ -56,15 +56,16 @@ if (isset($_POST['status'])){
                         ?>
                         <div class="product-box">
                             <div class="horizontal">
-                                <img class="product-box-img"
-                                    onerror="this.onerror=null; this.src='../public/images/pottery/default.png';"
-                                    src="../public/images/pottery/<?= $item->image ?>" />
+                                <img class="product-box-img" src="<?= (strpos($item->image, 'http') === 0)
+                                    ? $item->image
+                                    : "../public/images/pottery/" . $item->image ?>"
+                                    onerror="this.onerror=null; this.src='../public/images/pottery/default.png';" />
                                 <div class="vertical">
                                     <div class="light-text">ID: <?= $item->id ?></div>
-                                    <div class="dark"><?= $item->name.' '.$item->count.' шт'?></div>
+                                    <div class="dark"><?= $item->name . ' ' . $item->count . ' шт' ?></div>
                                 </div>
                             </div>
-                            <div class="clay"><?=$item->price?></div>
+                            <div class="clay"><?= $item->price ?></div>
                         </div>
                         <?php
                     }
@@ -76,9 +77,9 @@ if (isset($_POST['status'])){
                 </div>
                 <div class="custom-select">
                     <select name="status">
-                        <option value="0" <?=$order->status == 0 ? 'selected' : '' ?> >В обробці</option>
-                        <option value="1" <?=$order->status == 1 ? 'selected' : '' ?>>Відправлено</option>
-                        <option value="2" <?=$order->status == 2 ? 'selected' : '' ?>>Завершено</option>
+                        <option value="0" <?= $order->status == 0 ? 'selected' : '' ?>>В обробці</option>
+                        <option value="1" <?= $order->status == 1 ? 'selected' : '' ?>>Відправлено</option>
+                        <option value="2" <?= $order->status == 2 ? 'selected' : '' ?>>Завершено</option>
                     </select>
                 </div>
                 <button class="clay-btn">Зберегти</button>

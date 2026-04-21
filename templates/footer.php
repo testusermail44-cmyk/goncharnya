@@ -9,10 +9,10 @@
     </div>
     <div class="footer-links">
         <h4>КАТАЛОГ</h4>
-        <a href='' class="footer-link">Горщики</a>
-        <a href='' class="footer-link">Миски</a>
-        <a href='' class="footer-link">Глечики</a>
-        <a href='' class="footer-link">Декор</a>
+        <a href='<?=$mainDir?>pages/catalog.php?category%5B%5D=1' class="footer-link">Горщики</a>
+        <a href='<?=$mainDir?>pages/catalog.php?category%5B%5D=3' class="footer-link">Миски</a>
+        <a href='<?=$mainDir?>pages/catalog.php?category%5B%5D=2' class="footer-link">Глечики</a>
+        <a href='<?=$mainDir?>pages/catalog.php?category%5B%5D=7' class="footer-link">Декор</a>
     </div>
     <div class="footer-links">
         <h4>КОМПАНІЯ</h4>

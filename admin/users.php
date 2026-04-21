@@ -10,14 +10,16 @@ if (!isset($_SESSION['pottery_user']) || $_SESSION['pottery_user']['admin'] != 1
 $users = getUsers($pdo);
 ?>
 <html lang="uk">
+
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../public/css/style.css" />
     <link rel="stylesheet" href="../public/css/admin.css" />
     <title>Адмін-панель</title>
 </head>
+
 <body>
-    <?php include('../templates/header.php');?>
+    <?php include('../templates/header.php'); ?>
     <main class="admin-panel">
         <?php include('sidepanel.php') ?>
         <div class="center-panel">
@@ -28,21 +30,24 @@ $users = getUsers($pdo);
                     <div class="light-text  t-item">Роль</div>
                 </div>
                 <?php
-                    foreach($users as $u){
-                        ?>
-                        <div class="users-table-container">
-                            <div class="horizontal  t-item">
-                                <img class="user-table-img" src="../public/images/users/<?=$u->image?>"/>
-                                <div class="dark"><?=$u->name.' '.$u->surname?></div>
-                            </div>
-                            <div class="dark  t-item"><?=$u->email?></div>
-                            <div class="dark  t-item"><?=$u->admin==1 ? 'Адміністратор' : 'Користувач' ?></div>
+                foreach ($users as $u) {
+                    ?>
+                    <div class="users-table-container">
+                        <div class="horizontal  t-item">
+                            <img class="user-table-img" src="<?= (strpos($u->image, 'http') === 0)
+                                ? $u->image
+                                : "../public/images/users/" . $u->image ?>" />
+                            <div class="dark"><?= $u->name . ' ' . $u->surname ?></div>
                         </div>
-                        <?php
-                    }
+                        <div class="dark  t-item"><?= $u->email ?></div>
+                        <div class="dark  t-item"><?= $u->admin == 1 ? 'Адміністратор' : 'Користувач' ?></div>
+                    </div>
+                    <?php
+                }
                 ?>
             </div>
         </div>
     </main>
 </body>
+
 </html>

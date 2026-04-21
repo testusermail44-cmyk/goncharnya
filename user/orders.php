@@ -52,9 +52,10 @@ if (!isset($_SESSION['pottery_user']['id'])) {
                                 foreach ($itemsByOrders[$o->id] as $i) {
                                     ?>
                                     <div class="user-order-item-image-container">
-                                        <img class="user-order-image"
-                                            onerror="this.onerror=null; this.src='../public/images/pottery/default.png';"
-                                            src="../public/images/pottery/<?= $i->image ?>" />
+                                        <img class="user-order-image" src="<?= (strpos($i->image, 'http') === 0)
+                                            ? $i->image
+                                            : "../public/images/pottery/" . $i->image ?>"
+                                            onerror="this.onerror=null; this.src='../public/images/pottery/default.png';" />
                                     </div>
                                     <?php
                                 }

@@ -16,7 +16,7 @@ require_once('../controllers/productController.php');
     <main class="vertical-main">
         <div class="product-view">
             <div class="product-image-panel">
-                <img class="product-image" src="../public/images/pottery/<?= $product->image ?>"
+                <img class="product-image" src="<?= (strpos($product->image, 'http') === 0) ? $product->image : "../public/images/pottery/" . $product->image ?>"
                     onerror="this.onerror=null; this.src='../public/images/pottery/default.png';" />
             </div>
             <div class="product-right">
@@ -39,29 +39,30 @@ require_once('../controllers/productController.php');
                 <?php endif; ?>
                 <div class="line"></div>
                 <form class="vertical" method="post">
-                    
-                        <?php if($product->amount > 0){?>
-                            <div class="counter">
-                                <div class="counter-container">
-                                    <button type='button' id="minus" class="counter-btn">-</button>
-                                    <input class="counter-input" type="text" name="counter" value="1" />
-                                    <button type='button' id="plus" class="counter-btn">+</button>
-                                </div>
-                                <div class="stock">В наявності: <?= $product->amount ?> шт.</div>
+
+                    <?php if ($product->amount > 0) { ?>
+                        <div class="counter">
+                            <div class="counter-container">
+                                <button type='button' id="minus" class="counter-btn">-</button>
+                                <input class="counter-input" type="text" name="counter" value="1" />
+                                <button type='button' id="plus" class="counter-btn">+</button>
                             </div>
-                            <button class="clay-btn cart-btn" name="product" value="<?=$_GET['id']?>" type="submit">🛒 ДОДАТИ ДО КОШИКА</button>
-                        <?php }
-                        else{
+                            <div class="stock">В наявності: <?= $product->amount ?> шт.</div>
+                        </div>
+                        <button class="clay-btn cart-btn" name="product" value="<?= $_GET['id'] ?>" type="submit">🛒 ДОДАТИ
+                            ДО
+                            КОШИКА</button>
+                    <?php } else {
                         ?>
-                            <div class="stock">Немає в наявності</div>
-                            <div class="clay-btn cart-btn inactive">🛒 ДОДАТИ ДО КОШИКА</div>
+                        <div class="stock">Немає в наявності</div>
+                        <div class="clay-btn cart-btn inactive">🛒 ДОДАТИ ДО КОШИКА</div>
                         <?php
-                        } ?>
-                    </div>
-                    
-                    
-                </form>
+                    } ?>
             </div>
+
+
+            </form>
+        </div>
         </div>
         <div class="vertical">
             <div class="line m"></div>
@@ -80,24 +81,29 @@ require_once('../controllers/productController.php');
                     <?php foreach ($reviews as $r): ?>
                         <div class="review-container">
                             <div class="user-review-container">
-                                <img class="user-circle-review" src="../public/images/users/<?= $r->image ?>" />
+                                <img class="user-circle-review" src="<?= (strpos($r->image, 'http') === 0)
+                                    ? $r->image
+                                    : "../public/images/users/" . $r->image ?>" />
                                 <div class="review-user-info">
                                     <div class='review-i'>
                                         <span class="user-name-review"><?= $r->name . ' ' . $r->surname ?></span>
                                         <div class='horizontal'>
-                                            <span class="user-time-review<?=$_SESSION['pottery_user']['id'] == $r->user || $_SESSION['pottery_user']['admin'] == 1 ? '-margin' : ''?>"><?=$r->date?></span>
-                                            <?php if ($_SESSION['pottery_user']['id'] == $r->user || $_SESSION['pottery_user']['admin'] == 1) {
-                                                ?>
-                                                <a class="clay-btn rev" href="?<?= $_SERVER['QUERY_STRING'] ?>&del=<?=$r->id?>">🗑️</a>
-                                            <?php } ?>
+                                            <span
+                                                class="user-time-review<?= (isset($_SESSION['pottery_user']) && ($_SESSION['pottery_user']['id'] == $r->user || $_SESSION['pottery_user']['admin'] == 1)) ? '-margin' : '' ?>">
+                                                <?= $r->date ?>
+                                            </span>
+                                            <?php if (isset($_SESSION['pottery_user']) && ($_SESSION['pottery_user']['id'] == $r->user || $_SESSION['pottery_user']['admin'] == 1)): ?>
+                                                <a class="clay-btn rev"
+                                                    href="?<?= $_SERVER['QUERY_STRING'] ?>&del=<?= $r->id ?>">🗑️</a>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="rating-container">
                                         <?php for ($i = 0; $i < 5; $i++): ?>
-                                            <div class="rating-btn-div <?=$i < $r->rating ? 'star' : '' ?>">★</div>
+                                            <div class="rating-btn-div <?= $i < $r->rating ? 'star' : '' ?>">★</div>
                                         <?php endfor; ?>
                                     </div>
-                                    <div class="review-body"><?=$r->text?></div>
+                                    <div class="review-body"><?= $r->text ?></div>
                                 </div>
                             </div>
                         </div>
@@ -109,8 +115,9 @@ require_once('../controllers/productController.php');
             <?php if (isset($_SESSION['pottery_user'])) { ?>
                 <form class='review-form' method="post">
                     <div class="user-review-container">
-                        <img class="user-circle-review"
-                            src="../public/images/users/<?= $_SESSION['pottery_user']['image'] ?>" />
+                        <img class="user-circle-review" src="<?= (strpos($_SESSION['pottery_user']['image'], 'http') === 0)
+                            ? $_SESSION['pottery_user']['image']
+                            : "../public/images/users/" . $_SESSION['pottery_user']['image'] ?>" />
                         <div class="review-user-info">
                             <span
                                 class="user-name-review"><?= $_SESSION['pottery_user']['name'] . ' ' . $_SESSION['pottery_user']['surname'] ?></span>
@@ -149,7 +156,7 @@ require_once('../controllers/productController.php');
         let ratingButtons = document.querySelectorAll('.rating-btn')
         ratingButtons.forEach((element, index) => {
             element.addEventListener('mouseenter', (e) => {
-                for(let i = 0; i < 5; i++) {
+                for (let i = 0; i < 5; i++) {
                     ratingButtons[i].style.color = 'gray'
                 }
                 for (let i = 0; i <= index; i++) {
@@ -158,7 +165,7 @@ require_once('../controllers/productController.php');
             })
             element.addEventListener('mouseleave', (e) => {
                 for (let i = 0; i < 5; i++) {
-                    if (Number(ratingInput.value) >= i+1)
+                    if (Number(ratingInput.value) >= i + 1)
                         ratingButtons[i].style.color = '#ffd000'
                     else
                         ratingButtons[i].style.color = 'gray'

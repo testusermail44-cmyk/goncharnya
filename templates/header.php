@@ -1,23 +1,33 @@
 <header>
-    <a class="logo" href="<?=$mainDir?>pages/home.php">Гончарня</a>
+    <a class="logo" href="<?= $mainDir ?>pages/home.php">Гончарня</a>
     <div class="header-links">
-        <a class="header-link" href="<?=$mainDir?>pages/home.php">ГОЛОВНА</a>
-        <a class="header-link" href="<?=$mainDir?>pages/catalog.php">КАТАЛОГ</a>
-        <a class="header-link" href="<?=$mainDir?>pages/about.php">ПРО НАС</a>
-        <a class="header-link" href="<?=$mainDir?>pages/contacts.php">КОНТАКТИ</a>
+        <a class="header-link" href="<?= $mainDir ?>pages/home.php">ГОЛОВНА</a>
+        <a class="header-link" href="<?= $mainDir ?>pages/catalog.php">КАТАЛОГ</a>
+        <a class="header-link" href="<?= $mainDir ?>pages/about.php">ПРО НАС</a>
+        <a class="header-link" href="<?= $mainDir ?>pages/contacts.php">КОНТАКТИ</a>
     </div>
     <div class="header-right">
         <?php if (isset($_SESSION['pottery_user'])): ?>
             <a class="btn-dark" href="../user/cart.php">🛒 КОШИК</a>
-            
+
             <div class="user-dropdown">
                 <div class="header-user-container">
-                    <?php if (!empty($_SESSION['pottery_user']['image']) && file_exists('../public/images/users/' . $_SESSION['pottery_user']['image'])): ?>
-                        <img class="header-user-image" src="../public/images/users/<?= htmlspecialchars($_SESSION['pottery_user']['image']) ?>" alt="Avatar"/>
+                    <?php
+                    $userImage = $_SESSION['pottery_user']['image'] ?? '';
+                    $isExternal = strpos($userImage, 'http') === 0;
+                    $localPath = '../public/images/users/' . $userImage;
+                    ?>
+
+                    <?php if (!empty($userImage) && ($isExternal || file_exists($localPath))): ?>
+                        <img class="header-user-image"
+                            src="<?= $isExternal ? htmlspecialchars($userImage) : htmlspecialchars($localPath) ?>"
+                            alt="Avatar" />
                     <?php else: ?>
                         <div class="header-user-image default-avatar">👤</div>
                     <?php endif; ?>
-                    <div class="header-user-name"><?= htmlspecialchars($_SESSION['pottery_user']['name'] . ' ' . $_SESSION['pottery_user']['surname']) ?></div>
+                    <div class="header-user-name">
+                        <?= htmlspecialchars($_SESSION['pottery_user']['name'] . ' ' . $_SESSION['pottery_user']['surname']) ?>
+                    </div>
                     <span class="dropdown-arrow">▼</span>
                 </div>
                 <div class="user-dropdown-menu">
@@ -43,8 +53,8 @@
                 </div>
             </div>
         <?php else: ?>
-            <a class="btn-light" href="<?=$mainDir?>auth/login.php">ВХІД</a>
-            <a class="btn-dark" href="<?=$mainDir?>auth/registration.php">РЕЄСТРАЦІЯ</a>
+            <a class="btn-light" href="<?= $mainDir ?>auth/login.php">ВХІД</a>
+            <a class="btn-dark" href="<?= $mainDir ?>auth/registration.php">РЕЄСТРАЦІЯ</a>
         <?php endif; ?>
     </div>
 </header>

@@ -104,8 +104,14 @@ if (isset($_POST['delete_avatar'])) {
                 <div class="settings-title">Фото профілю</div>
                 <div class="avatar-section">
                     <div class="avatar-preview">
-                        <?php if ($user->image && file_exists('../public/images/users/' . $user->image)): ?>
-                            <img src="../public/images/users/<?= htmlspecialchars($user->image) ?>" alt="Avatar">
+                        <?php
+                        $userImage = $user->image ?? '';
+                        $isExternal = strpos($userImage, 'http') === 0;
+                        $localPath = '../public/images/users/' . $userImage;
+                        ?>
+                        <?php if (!empty($userImage) && ($isExternal || file_exists($localPath))): ?>
+                            <img src="<?= $isExternal ? htmlspecialchars($userImage) : htmlspecialchars($localPath) ?>"
+                                alt="Avatar">
                         <?php else: ?>
                             <div class="no-avatar">👤</div>
                         <?php endif; ?>

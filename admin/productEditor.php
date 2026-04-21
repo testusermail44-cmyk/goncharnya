@@ -20,7 +20,7 @@ $temp = '';
 $diameter = '';
 $volume = '';
 $amount = 0;
-$image = 'default.png'; 
+$image = 'default.png';
 
 if (isset($_GET['edit'])) {
     $id = $_GET['edit'];
@@ -56,18 +56,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $volume = $_POST['value'];
     $amount = $_POST['amount'];
     $imageName = $_POST['current_image'] ?? 'default.png';
+
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $apiKey = getenv('IMG');
         $fileTmpPath = $_FILES['image']['tmp_name'];
-        $fileName = $_FILES['image']['name'];
-        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-        $newFileName = time().'_'.uniqid().'.'.$fileExtension;
-        $uploadFileDir = '../public/images/pottery/';
-        $dest_path = $uploadFileDir.$newFileName;
-        if (move_uploaded_file($fileTmpPath, $dest_path)) {
-            if ($imageName !== 'default.png' && file_exists($uploadFileDir.$imageName)) {
-                unlink($uploadFileDir.$imageName);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.imgbb.com/1/upload?key=' . $apiKey);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [
+            'image' => base64_encode(file_get_contents($fileTmpPath)),
+        ]);
+        $response = curl_exec($ch);
+        $ch = null;
+        $resData = json_decode($response, true);
+        if (isset($resData['data']['url'])) {
+            $uploadFileDir = '../public/images/pottery/';
+            if ($imageName !== 'default.png' && strpos($imageName, 'http') === false && file_exists($uploadFileDir . $imageName)) {
+                unlink($uploadFileDir . $imageName);
             }
-            $imageName = $newFileName;
+            $imageName = $resData['data']['url'];
         }
     }
     if (isset($_GET['edit'])) {
@@ -92,13 +100,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include('../templates/header.php'); ?>
     <main class="admin-panel">
         <?php include('sidepanel.php') ?>
-        <form method="POST" enctype="multipart/form-data" class="vertical full" style="padding:20px; padding-left:0px;">
+        <form id="product-form" method="POST" enctype="multipart/form-data" class="vertical full"
+            style="padding:20px; padding-left:0px;">
             <input type="hidden" name="current_image" value="<?= $image ?>">
             <div class="input-full-container center">
                 <label class="input-label">Фото виробу</label>
                 <div class="image-upload-wrapper" onclick="document.getElementById('image-input').click()">
-                    <img id="image-preview" src="../public/images/pottery/<?= $image ?>"
-                        class="product-a-c-i">
+                    <img id="image-preview" src="<?= (strpos($image, 'http') === 0)
+                        ? $image
+                        : "../public/images/pottery/" . $image ?>" class="product-a-c-i">
                     <div class="upload-overlay">
                         <span>Змінити фото</span>
                     </div>
@@ -108,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="horizontal">
                 <?php create_input('Назва продукту', 'name', 'name', 'text', false, 'Назва', $name, true);
                 create_input('Кількість', 'amount', 'amount', 'text', false, 'Кількість', $amount, true)
-                ?>
+                    ?>
             </div>
             <div class="horizontal">
                 <div class="input-full-container">
@@ -174,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 create_input('Об\'єм', 'value', 'value', 'text', false, 'Об\'єм', $volume, false);
                 ?>
             </div>
-            <button class="clay-btn">Зберегти</button>
+            <button id="submit-btn" class="clay-btn">Зберегти</button>
         </form>
     </main>
     <script>
@@ -196,7 +206,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 reader.readAsDataURL(file);
             }
         });
+        document.getElementById('product-form').addEventListener('submit', function () {
+            const btn = document.getElementById('submit-btn');
+            const imageInput = document.querySelector('input[type="file"]');
+            if (imageInput && imageInput.files.length > 0) {
+                btn.disabled = true;
+                btn.innerText = 'Збереження...';
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'not-allowed';
+            } else {
+                btn.innerText = 'Збереження...';
+            }
+        });
     </script>
+
 </body>
 
 </html>

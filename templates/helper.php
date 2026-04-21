@@ -4,7 +4,9 @@ function product_card($id, $image, $name, $category, $price)
     ?>
     <a href="product.php?id=<?= $id ?>" class="product-card">
         <div class='product-image-card-cont <?= random_int(0, 1) == 0 ? 'green' : 'brown' ?>'>
-            <img class="product-card-image" src="../public/images/pottery/<?= $image ?>"
+            <img class="product-card-image" src="<?= (strpos($image, 'http') === 0)
+                ? $image
+                : "../public/images/pottery/" . $image ?>"
                 onerror="this.onerror=null; this.src='../public/images/pottery/default.png';" />
         </div>
         <div class="product-card-container">
@@ -19,28 +21,32 @@ function product_card($id, $image, $name, $category, $price)
     <?php
 }
 
-function createCartCard($id, $name, $price, $volume, $color, $categoty, $image, $count){
+function createCartCard($id, $name, $price, $volume, $color, $categoty, $image, $count)
+{
     ?>
     <div class="cart-card">
         <div class="card-left">
             <div class="cart-img">
-                <img class="cart-image" src="../public/images/pottery/<?= $image ?>" onerror="this.onerror=null; this.src='../public/images/pottery/default.png';" />
+                <img class="cart-image" src="<?= (strpos($image, 'http') === 0)
+                    ? $image
+                    : "../public/images/pottery/" . $image ?>"
+                    onerror="this.onerror=null; this.src='../public/images/pottery/default.png';" />
             </div>
             <div class="vertical cart-info">
-                <div class="info-label"><?=$categoty?></div>
-                <div class="cart-name"><?=$name?></div>
-                <div class="small-text"><?=$color.' '.$volume / 1000?> л</div>
-                <div class="cart-price"><?=$price?> грн</div>
+                <div class="info-label"><?= $categoty ?></div>
+                <div class="cart-name"><?= $name ?></div>
+                <div class="small-text"><?= $color . ' ' . $volume / 1000 ?> л</div>
+                <div class="cart-price"><?= $price ?> грн</div>
             </div>
         </div>
         <div class="card-right">
             <div class="card-item-count">
-                <?=$count?> шт.
+                <?= $count ?> шт.
             </div>
             <div class="cart-item-res-price">
-                <?=$price * $count?> грн
+                <?= $price * $count ?> грн
             </div>
-            <a class="cart-del-btn" href="?del=<?=$id?>">Видалити</a>
+            <a class="cart-del-btn" href="?del=<?= $id ?>">Видалити</a>
         </div>
     </div>
     <?php
@@ -52,8 +58,8 @@ function create_input($labelText, $name, $id, $type, $icon, $placeholder, $value
     <div class="input-full-container">
         <label class="input-label" for="<?= $id ?>"><?= $labelText ?></label>
         <div class="input-container">
-            <?php if (!$icon) {?>
-            <div class="input-icon"><?= $icon ?></div>
+            <?php if (!$icon) { ?>
+                <div class="input-icon"><?= $icon ?></div>
             <?php } ?>
             <input id="<?= $id ?>" name="<?= $name ?>" <?= $value ? 'value="' . $value . '"' : '' ?> type="<?= $type ?>"
                 placeholder="<?= $placeholder ?>" autocomplete="off" <?= $require ? 'required' : '' ?> />
