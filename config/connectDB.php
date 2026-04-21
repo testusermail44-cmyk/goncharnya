@@ -1,12 +1,10 @@
 <?php
-/*$pdo = new PDO(
-    'mysql:host=localhost;dbname=goncharnya;charset=utf8mb4',
-    'root',
-    '',
-    [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ]);*/
+    $host = getenv('DB_HOST');
+    $user = getenv('DB_USER');
+    $pass = getenv('DB_PASS');
     $pdo = new PDO(
-    'mysql:host=localhost;dbname=goncharnya;charset=utf8mb4',
-    'root',
-    '',   
+    $host,
+    $user,
+    $pass,   
     [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ]);
 ?>
