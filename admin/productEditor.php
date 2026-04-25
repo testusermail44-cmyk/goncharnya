@@ -71,8 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-
-        $response = curl_exec($ch);
+ 
 $ch = null;
 
 echo '<pre style="color:lime;position:fixed;top:0;left:0;z-index:9999;background:black;padding:20px">';
