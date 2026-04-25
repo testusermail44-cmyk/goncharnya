@@ -68,6 +68,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => base64_encode(file_get_contents($fileTmpPath)),
         ]);
         $response = curl_exec($ch);
+
+
+
+
+        $response = curl_exec($ch);
+$ch = null;
+
+echo '<pre style="color:lime;position:fixed;top:0;left:0;z-index:9999;background:black;padding:20px">';
+echo "Response: " . htmlspecialchars($response) . "\n";
+echo "API Key: " . (getenv('IMG') ? 'є (' . strlen(getenv('IMG')) . ' символів)' : 'ПОРОЖНІЙ!');
+echo '</pre>';
+exit;
+        
+
+
+
+        
         $ch = null;
         $resData = json_decode($response, true);
         if (isset($resData['data']['url'])) {
@@ -82,24 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         updateProduct($pdo, $_GET['edit'], $name, $category, $color, $style, $price, $description, $weight, $temp, $diameter, $height, $volume, $amount, $imageName);
     } else {
         createProduct($pdo, $name, $category, $color, $style, $price, $description, $weight, $temp, $diameter, $height, $volume, $amount, $imageName);
-    }
-
-
-
-
-$response = curl_exec($ch);
-$ch = null;
-
-echo '<pre style="color:lime;position:fixed;top:0;left:0;z-index:9999;background:black;padding:20px">';
-echo "Response: " . htmlspecialchars($response) . "\n";
-echo "API Key: " . (getenv('IMG') ? 'є (' . strlen(getenv('IMG')) . ' символів)' : 'ПОРОЖНІЙ!');
-echo '</pre>';
-exit;
-    
-    
-
-
-    
+    }    
    // header('Location: products.php');
     exit;
 }
