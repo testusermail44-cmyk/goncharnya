@@ -348,7 +348,7 @@ img.product-box-img {
 img.product-a-c-i {
     width: 140px;
     height: 140px;
-    object-fit: cover;
+    object-fit: contain;
     background:  linear-gradient(135deg, var(--clay), var(--clay-dark));
     border-radius: 20px;
     padding: 10px;
