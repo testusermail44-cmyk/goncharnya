@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         createProduct($pdo, $name, $category, $color, $style, $price, $description, $weight, $temp, $diameter, $height, $volume, $amount, $imageName);
     }
-    header('Location: products.php');
+   // header('Location: products.php');
     exit;
 }
 ?>
