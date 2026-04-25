@@ -83,6 +83,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         createProduct($pdo, $name, $category, $color, $style, $price, $description, $weight, $temp, $diameter, $height, $volume, $amount, $imageName);
     }
+
+
+
+
+$response = curl_exec($ch);
+$ch = null;
+
+echo '<pre style="color:lime;position:fixed;top:0;left:0;z-index:9999;background:black;padding:20px">';
+echo "Response: " . htmlspecialchars($response) . "\n";
+echo "API Key: " . (getenv('IMG') ? 'є (' . strlen(getenv('IMG')) . ' символів)' : 'ПОРОЖНІЙ!');
+echo '</pre>';
+exit;
+    
+    
+
+
+    
    // header('Location: products.php');
     exit;
 }
