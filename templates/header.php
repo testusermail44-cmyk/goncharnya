@@ -1,5 +1,6 @@
 <?php
-include('../models/user.php');
+require_once('../config/connectDB.php');
+require_once('../models/user.php');
 if (!isset($_SESSION['pottery_user']) && isset($_COOKIE['remember_user'])) {
     $userId = $_COOKIE['remember_user'];
     $user = getUserById($pdo, $userId);
