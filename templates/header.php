@@ -39,7 +39,7 @@
                         <span class="dropdown-icon">⚙️</span>
                         Налаштування
                     </a>
-                    <?php if (isset($_SESSION['pottery_user']['admin']) && $_SESSION['pottery_user']['admin'] == 1): ?>
+                    <?php if (isset($_SESSION['pottery_user']['admin']) && $_SESSION['pottery_user']['admin'] == 1) : ?>
                         <a href="../admin/products.php" class="dropdown-item">
                             <span class="dropdown-icon">🔧</span>
                             Адмін панель
