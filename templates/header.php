@@ -1,5 +1,5 @@
 <?php
-include('../models/user.php')
+include('../models/user.php');
 if (!isset($_SESSION['pottery_user']) && isset($_COOKIE['remember_user'])) {
     $userId = $_COOKIE['remember_user'];
     $user = getUserById($pdo, $userId);
