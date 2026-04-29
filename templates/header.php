@@ -1,3 +1,20 @@
+<?php
+if (!isset($_SESSION['pottery_user']) && isset($_COOKIE['remember_user'])) {
+    $userId = $_COOKIE['remember_user'];
+    $user = getUserById($pdo, $userId);
+
+    if ($user) {
+        $_SESSION['pottery_user'] = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'surname' => $user->surname,
+            'admin' => $user->admin,
+            'email' => $user->email,
+            'image' => $user->image
+        ];
+    }
+}
+?>
 <header>
     <a class="logo" href="<?= $mainDir ?>pages/home.php">Гончарня</a>
     <div class="header-links">
