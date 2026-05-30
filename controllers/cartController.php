@@ -8,6 +8,9 @@ if (!isset($_SESSION['pottery_user']['id'])) {
     header('Location: ../auth/login.php');
     exit;
 }
+if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
 $ids = array_column($_SESSION['cart'], 'product');
 $products = [];
 if (!empty($_SESSION['cart'])) {
