@@ -14,13 +14,14 @@ $message = '';
 $error = '';
 
 $user = getUserById($pdo, $userId);
-$userImage = $user->image;
 
 if (!$user) {
     session_destroy();
     header('Location: ../auth/login.php');
     exit;
 }
+
+$userImage = $user->image;
 
 if (isset($_POST['update_profile'])) {
     $name = trim($_POST['name']);
@@ -111,10 +112,10 @@ if (isset($_POST['delete_avatar'])) {
                     <div class="avatar-preview">
                         <?php
                         $userImage = $user->image ?? '';
-                        $isExternal = strpos($userImage, 'http') === 0;
-                        $localPath = '../public/images/users/' . $userImage;
+                        $isExternal = is_string($userImage) && strpos($userImage, 'http') === 0;
+                        $localPath = '../public/images/users/' . (is_string($userImage) ? $userImage : '');
                         ?>
-                        <?php if (!empty($userImage) && ($isExternal || file_exists($localPath))): ?>
+                        <?php if (!empty($userImage) && is_string($userImage) && ($isExternal || file_exists($localPath))): ?>
                             <img id="image-preview" src="<?= $isExternal ? htmlspecialchars($userImage) : htmlspecialchars($localPath) ?>"
                                 alt="Avatar">
                         <?php else: ?>
