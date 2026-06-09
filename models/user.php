@@ -2,12 +2,12 @@
 function getUsers($pdo){
     $stmt = $pdo->prepare("SELECT name, surname, email, admin, image FROM users");
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_OBJ);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 function checkEmail($pdo, $email){
     $stmt = $pdo->prepare("SELECT email FROM users WHERE EMAIL = ?");
     $stmt->execute([$email]);
-    return (bool)$stmt->fetch();
+    return (bool)$stmt->fetch(PDO::FETCH_ASSOC);
 }
 function addUser($pdo, $name, $surname, $pass, $email)
 {
@@ -24,23 +24,23 @@ function loginUser($pdo, $email, $pass, $remember = false)
 {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_OBJ);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$user) {
         return false;
     }
-    if (!password_verify($pass, $user->password)) {
+    if (!password_verify($pass, $user['password'])) {
         return false;
     }
-    $_SESSION['pottery_user']['id'] = $user->id;
-    $_SESSION['pottery_user']['name'] = $user->name;
-    $_SESSION['pottery_user']['surname'] = $user->surname;
-    $_SESSION['pottery_user']['admin'] = $user->admin;
-    $_SESSION['pottery_user']['email'] = $user->email;
-    $_SESSION['pottery_user']['image'] = $user->image;
+    $_SESSION['pottery_user']['id'] = $user['id'];
+    $_SESSION['pottery_user']['name'] = $user['name'];
+    $_SESSION['pottery_user']['surname'] = $user['surname'];
+    $_SESSION['pottery_user']['admin'] = $user['admin'];
+    $_SESSION['pottery_user']['email'] = $user['email'];
+    $_SESSION['pottery_user']['image'] = $user['image'];
     if ($remember) {
         setcookie(
             "remember_user",
-            $user->id,
+            $user['id'],
             time() + (86400 * 30),
             "/"
         );
@@ -51,7 +51,7 @@ function loginUser($pdo, $email, $pass, $remember = false)
 function getUserById($pdo, $userId) {
     $stmt = $pdo->prepare("SELECT id, name, surname, email, image, admin FROM users WHERE id = ?");
     $stmt->execute([$userId]);
-    return $stmt->fetch(PDO::FETCH_OBJ);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 function updateUserProfile($pdo, $userId, $name, $surname) {
@@ -79,9 +79,9 @@ function updateUserPassword($pdo, $userId, $currentPassword, $newPassword, $conf
     
     $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
     $stmt->execute([$userId]);
-    $userData = $stmt->fetch(PDO::FETCH_OBJ);
+    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!password_verify($currentPassword, $userData->password)) {
+    if (!password_verify($currentPassword, $userData['password'])) {
         return ['success' => false, 'message' => 'Поточний пароль введено невірно'];
     }
     $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
