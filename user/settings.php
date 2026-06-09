@@ -63,7 +63,6 @@ if (isset($_POST['update_avatar'])) {
         $result = updateUserAvatar($pdo, $userId, $avatarUrl, $user->image);
 
         if ($result['success']) {
-            $message = $result['message'];
             header('Location: settings.php');
             exit;
         } else {
