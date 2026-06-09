@@ -55,20 +55,25 @@ if (isset($_POST['update_password'])) {
         $error = $result['message'];
     }
 }
-if (isset($_POST['update_avatar'])) {
-    $result = updateUserAvatar($pdo, $userId, $_FILES['avatar'], $user->image);
 
-    if ($result['success']) {
-        $message = $result['message'];
-        if (isset($result['image'])) {
-            $_SESSION['pottery_user']['image'] = $result['image'];
+if (isset($_POST['update_avatar'])) {
+    $avatarUrl = $_POST['avatar_url'] ?? '';
+
+    if (!empty($avatarUrl)) {
+        $result = updateUserAvatar($pdo, $userId, $avatarUrl, $user->image);
+
+        if ($result['success']) {
+            $message = $result['message'];
             header('Location: settings.php');
             exit;
+        } else {
+            $error = $result['message'];
         }
     } else {
-        $error = $result['message'];
+        $error = 'Не вдалося отримати посилання на зображення';
     }
 }
+
 if (isset($_POST['delete_avatar'])) {
     $result = deleteUserAvatar($pdo, $userId, $user->image);
 
@@ -111,24 +116,27 @@ if (isset($_POST['delete_avatar'])) {
                         $localPath = '../public/images/users/' . $userImage;
                         ?>
                         <?php if (!empty($userImage) && ($isExternal || file_exists($localPath))): ?>
-                            <img src="<?= $isExternal ? htmlspecialchars($userImage) : htmlspecialchars($localPath) ?>"
+                            <img id="image-preview" src="<?= $isExternal ? htmlspecialchars($userImage) : htmlspecialchars($localPath) ?>"
                                 alt="Avatar">
                         <?php else: ?>
-                            <div class="no-avatar">👤</div>
+                            <div id="avatar-placeholder" class="no-avatar">👤</div>
+                            <img id="image-preview" src="" alt="Avatar" style="display: none;">
                         <?php endif; ?>
                     </div>
                     <div class="avatar-actions">
-                        <form method="POST" enctype="multipart/form-data">
+                        <form id="avatar-form" method="POST">
                             <div class="file-input-wrapper">
                                 <button type="button" class="clay-btn"
                                     onclick="document.getElementById('avatar-input').click()">
                                     Завантажити фото
                                 </button>
-                                <input type="file" name="avatar" id="avatar-input" accept="image/*"
-                                    style="display: none;" onchange="this.form.submit()">
+                                <div id="upload-overlay-text" style="margin-top: 5px; font-size: 14px; color: var(--text-color);"></div>
+                                <input type="hidden" name="avatar_url" id="current_image" value="">
+                                <input type="hidden" name="update_avatar" value="1">
                             </div>
-                            <input type="hidden" name="update_avatar" value="1">
                         </form>
+                        <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+
                         <?php if ($user->image && $user->image != 'user.png'): ?>
                             <form method="POST" onsubmit="return confirm('Ви впевнені, що хочете видалити фото?')">
                                 <button type="submit" name="delete_avatar" class="btn-dark btn-danger">Видалити</button>
@@ -186,6 +194,8 @@ if (isset($_POST['delete_avatar'])) {
     <?php include('../templates/footer.php'); ?>
 
     <script>
+        const IMGBB_KEY = '<?= getenv('IMG') ?>';
+
         setTimeout(function () {
             const messages = document.querySelectorAll('.message');
             messages.forEach(function (msg) {
@@ -196,20 +206,75 @@ if (isset($_POST['delete_avatar'])) {
                 }, 500);
             });
         }, 5000);
-        document.querySelector('form[action=""]')?.addEventListener('submit', function (e) {
-            if (this.querySelector('input[name="update_password"]')) {
-                const newPass = this.querySelector('#new_password').value;
-                const confirmPass = this.querySelector('#confirm_password').value;
 
-                if (newPass !== confirmPass) {
-                    e.preventDefault();
-                    alert('Новий пароль та підтвердження не співпадають');
-                } else if (newPass.length < 6) {
-                    e.preventDefault();
-                    alert('Пароль повинен містити не менше 6 символів');
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function (e) {
+                if (this.querySelector('#new_password')) {
+                    const newPass = this.querySelector('#new_password').value;
+                    const confirmPass = this.querySelector('#confirm_password').value;
+
+                    if (newPass !== confirmPass) {
+                        e.preventDefault();
+                        alert('Новий пароль та підтвердження не співпадають');
+                    } else if (newPass.length < 6) {
+                        e.preventDefault();
+                        alert('Пароль повинен містити не менше 6 символів');
+                    }
                 }
+            });
+        });
+
+        document.getElementById('avatar-input').addEventListener('change', async function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const previewImg = document.getElementById('image-preview');
+            const placeholder = document.getElementById('avatar-placeholder');
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                if(placeholder) placeholder.style.display = 'none';
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            const overlayText = document.getElementById('upload-overlay-text');
+            overlayText.textContent = 'Завантаження...';
+
+            try {
+                const base64 = await toBase64(file);
+                const formData = new FormData();
+                formData.append('image', base64.split(',')[1]);
+
+                const res = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await res.json();
+
+                if (data?.data?.url) {
+                    document.getElementById('current_image').value = data.data.url;
+                    overlayText.textContent = 'Завантажено ✓';
+                    document.getElementById('avatar-form').submit();
+                } else {
+                    overlayText.textContent = 'Помилка завантаження';
+                    console.error(data);
+                }
+            } catch (err) {
+                overlayText.textContent = 'Помилка завантаження';
+                console.error(err);
             }
         });
+
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
     </script>
 </body>
 
