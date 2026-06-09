@@ -31,12 +31,14 @@ function loginUser($pdo, $email, $pass, $remember = false)
         return false;
     }
     
-    $_SESSION['pottery_user']['id'] = $user->id;
-    $_SESSION['pottery_user']['name'] = $user->name;
-    $_SESSION['pottery_user']['surname'] = $user->surname;
-    $_SESSION['pottery_user']['admin'] = $user->admin;
-    $_SESSION['pottery_user']['email'] = $user->email;
-    $_SESSION['pottery_user']['image'] = $user->image;
+    $_SESSION['pottery_user'] = (object)[
+        'id' => $user->id,
+        'name' => $user->name,
+        'surname' => $user->surname,
+        'admin' => $user->admin,
+        'email' => $user->email,
+        'image' => $user->image
+    ];
     
     if ($remember) {
         setcookie(
@@ -58,8 +60,10 @@ function getUserById($pdo, $userId) {
 function updateUserProfile($pdo, $userId, $name, $surname) {
     $stmt = $pdo->prepare("UPDATE users SET name = ?, surname = ? WHERE id = ?");
     if ($stmt->execute([$name, $surname, $userId])) {
-        $_SESSION['pottery_user']['name'] = $name;
-        $_SESSION['pottery_user']['surname'] = $surname;
+        if (isset($_SESSION['pottery_user']) && is_object($_SESSION['pottery_user'])) {
+            $_SESSION['pottery_user']->name = $name;
+            $_SESSION['pottery_user']->surname = $surname;
+        }
         return true;
     }
     return false;
@@ -109,7 +113,9 @@ function updateUserAvatar($pdo, $userId, $avatarUrl, $currentImage) {
 
     $stmt = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
     if ($stmt->execute([$avatarUrl, $userId])) {
-        $_SESSION['pottery_user']['image'] = $avatarUrl;
+        if (isset($_SESSION['pottery_user']) && is_object($_SESSION['pottery_user'])) {
+            $_SESSION['pottery_user']->image = $avatarUrl;
+        }
         return ['success' => true, 'image' => $avatarUrl, 'message' => 'Фото успішно оновлено'];
     }
     
@@ -126,7 +132,9 @@ function deleteUserAvatar($pdo, $userId, $currentImage) {
     
     $stmt = $pdo->prepare("UPDATE users SET image = 'user.png' WHERE id = ?");
     if ($stmt->execute([$userId])) {
-        $_SESSION['pottery_user']['image'] = 'user.png';
+        if (isset($_SESSION['pottery_user']) && is_object($_SESSION['pottery_user'])) {
+            $_SESSION['pottery_user']->image = 'user.png';
+        }
         return ['success' => true];
     }
     
