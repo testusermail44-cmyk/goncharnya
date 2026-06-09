@@ -92,47 +92,25 @@ function updateUserPassword($pdo, $userId, $currentPassword, $newPassword, $conf
     
     return ['success' => false, 'message' => 'Помилка при зміні пароля'];
 }
-function updateUserAvatar($pdo, $userId, $file, $currentImage) {
-    if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+function updateUserAvatar($pdo, $userId, $avatarUrl, $currentImage) {
+    if (empty($avatarUrl)) {
         return ['success' => false, 'message' => 'Будь ласка, оберіть файл для завантаження'];
     }
 
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    if (!in_array($file['type'], $allowedTypes)) {
-        return ['success' => false, 'message' => 'Дозволені формати: JPEG, PNG, WEBP'];
+    if ($currentImage && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
+        $oldPath = '../public/images/users/' . $currentImage;
+        if (file_exists($oldPath)) {
+            unlink($oldPath);
+        }
     }
 
-    $apiKey = getenv('IMG');
-    
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://api.imgbb.com/1/upload?key=' . $apiKey);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, [
-        'image' => base64_encode(file_get_contents($file['tmp_name'])),
-    ]);
-    
-    $response = curl_exec($ch);
-    $ch = null;
-    $resData = json_decode($response, true);
-
-    if (isset($resData['data']['url'])) {
-        $newImageUrl = $resData['data']['url'];
-
-        if ($currentImage && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
-            $oldPath = '../public/images/users/' . $currentImage;
-            if (file_exists($oldPath)) unlink($oldPath);
-        }
-
-        $stmt = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
-        if ($stmt->execute([$newImageUrl, $userId])) {
-            $_SESSION['pottery_user']['image'] = $newImageUrl;
-            return ['success' => true, 'image' => $newImageUrl];
-        }
-        return ['success' => false, 'message' => 'Помилка при збереженні фото в БД'];
+    $stmt = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
+    if ($stmt->execute([$avatarUrl, $userId])) {
+        $_SESSION['pottery_user']['image'] = $avatarUrl;
+        return ['success' => true, 'image' => $avatarUrl, 'message' => 'Фото успішно оновлено'];
     }
     
-    return ['success' => false, 'message' => 'Помилка при завантаженні на ImgBB'];
+    return ['success' => false, 'message' => 'Помилка при збереженні даних у базу'];
 }
 
 function deleteUserAvatar($pdo, $userId, $currentImage) {
