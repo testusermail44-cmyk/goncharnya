@@ -14,6 +14,7 @@ $message = '';
 $error = '';
 
 $user = getUserById($pdo, $userId);
+$userImage = $user->image;
 
 if (!$user) {
     session_destroy();
