@@ -21,8 +21,6 @@ if (!$user) {
     exit;
 }
 
-$userImage = $user['image'];
-
 if (isset($_POST['update_profile'])) {
     $name = trim($_POST['name']);
     $surname = trim($_POST['surname']);
@@ -61,7 +59,7 @@ if (isset($_POST['update_avatar'])) {
     $avatarUrl = $_POST['avatar_url'] ?? '';
 
     if (!empty($avatarUrl)) {
-        $result = updateUserAvatar($pdo, $userId, $avatarUrl, $user['image']);
+        $result = updateUserAvatar($pdo, $userId, $avatarUrl, $user->image);
 
         if ($result['success']) {
             header('Location: settings.php');
@@ -75,7 +73,7 @@ if (isset($_POST['update_avatar'])) {
 }
 
 if (isset($_POST['delete_avatar'])) {
-    $result = deleteUserAvatar($pdo, $userId, $user['image']);
+    $result = deleteUserAvatar($pdo, $userId, $user->image);
 
     if ($result['success']) {
         header('Location: settings.php');
@@ -111,7 +109,7 @@ if (isset($_POST['delete_avatar'])) {
                 <div class="avatar-section">
                     <div class="avatar-preview">
                         <?php
-                        $userImage = $user['image'] ?? '';
+                        $userImage = $user->image ?? '';
                         $isExternal = is_string($userImage) && strpos($userImage, 'http') === 0;
                         $localPath = '../public/images/users/' . (is_string($userImage) ? $userImage : '');
                         ?>
@@ -137,7 +135,7 @@ if (isset($_POST['delete_avatar'])) {
                         </form>
                         <input type="file" id="avatar-input" accept="image/*" style="display: none;">
 
-                        <?php if ($user['image'] && $user['image'] != 'user.png'): ?>
+                        <?php if ($user->image && $user->image != 'user.png'): ?>
                             <form method="POST" onsubmit="return confirm('Ви впевнені, що хочете видалити фото?')">
                                 <button type="submit" name="delete_avatar" class="btn-dark btn-danger">Видалити</button>
                             </form>
@@ -150,11 +148,11 @@ if (isset($_POST['delete_avatar'])) {
                 <form method="POST">
                     <div class="form-group">
                         <label for="name">Ім'я *</label>
-                        <input type="text" id="name" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
+                        <input type="text" id="name" name="name" value="<?= htmlspecialchars($user->name) ?>" required>
                     </div>
                     <div class="form-group">
                         <label for="surname">Прізвище *</label>
-                        <input type="text" id="surname" name="surname" value="<?= htmlspecialchars($user['surname']) ?>"
+                        <input type="text" id="surname" name="surname" value="<?= htmlspecialchars($user->surname) ?>"
                             required>
                     </div>
 
