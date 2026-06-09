@@ -150,25 +150,5 @@ function deleteUserAvatar($pdo, $userId, $currentImage) {
     return ['success' => false, 'message' => 'Помилка при видаленні аватара'];
 }
 
-if (isset($_POST['update_avatar'])) {
-    $result = updateUserAvatar($pdo, $userId, $_FILES['avatar'], $user->image);
 
-    if ($result['success']) {
-        header('Location: settings.php');
-        exit;
-    } else {
-        $error = $result['message'];
-    }
-}
-
-if (isset($_POST['delete_avatar'])) {
-    $result = deleteUserAvatar($pdo, $userId, $user->image);
-
-    if ($result['success']) {
-        header('Location: settings.php');
-        exit;
-    } else {
-        $error = $result['message'];
-    }
-}
 ?>
