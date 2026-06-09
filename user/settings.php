@@ -1,7 +1,7 @@
 <?php
 session_start();
 $mainDir = '../';
-if (!isset($_SESSION['pottery_user']['id'])) {
+if (!isset($_SESSION['pottery_user']) || !isset($_SESSION['pottery_user']->id)) {
     header('Location: ../auth/login.php');
     exit;
 }
@@ -9,7 +9,7 @@ if (!isset($_SESSION['pottery_user']['id'])) {
 require_once '../config/connectDB.php';
 require_once '../models/user.php';
 
-$userId = $_SESSION['pottery_user']['id'];
+$userId = $_SESSION['pottery_user']->id;
 $message = '';
 $error = '';
 
