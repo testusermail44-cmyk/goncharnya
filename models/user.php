@@ -2,7 +2,7 @@
 function getUsers($pdo){
     $stmt = $pdo->prepare("SELECT name, surname, email, admin, image FROM users");
     $stmt->execute();
-    return $stmt->fetchAll();
+    return $stmt->fetchAll(PDO::FETCH_OBJ);
 }
 function checkEmail($pdo, $email){
     $stmt = $pdo->prepare("SELECT email FROM users WHERE EMAIL = ?");
@@ -24,7 +24,7 @@ function loginUser($pdo, $email, $pass, $remember = false)
 {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
-    $user = $stmt->fetch();
+    $user = $stmt->fetch(PDO::FETCH_OBJ);
     if (!$user) {
         return false;
     }
@@ -51,7 +51,7 @@ function loginUser($pdo, $email, $pass, $remember = false)
 function getUserById($pdo, $userId) {
     $stmt = $pdo->prepare("SELECT id, name, surname, email, image, admin FROM users WHERE id = ?");
     $stmt->execute([$userId]);
-    return $stmt->fetch();
+    return $stmt->fetch(PDO::FETCH_OBJ);
 }
 
 function updateUserProfile($pdo, $userId, $name, $surname) {
@@ -79,7 +79,7 @@ function updateUserPassword($pdo, $userId, $currentPassword, $newPassword, $conf
     
     $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
     $stmt->execute([$userId]);
-    $userData = $stmt->fetch();
+    $userData = $stmt->fetch(PDO::FETCH_OBJ);
     
     if (!password_verify($currentPassword, $userData->password)) {
         return ['success' => false, 'message' => 'Поточний пароль введено невірно'];
@@ -92,12 +92,13 @@ function updateUserPassword($pdo, $userId, $currentPassword, $newPassword, $conf
     
     return ['success' => false, 'message' => 'Помилка при зміні пароля'];
 }
+
 function updateUserAvatar($pdo, $userId, $avatarUrl, $currentImage) {
     if (empty($avatarUrl)) {
         return ['success' => false, 'message' => 'Будь ласка, оберіть файл для завантаження'];
     }
 
-    if ($currentImage && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
+    if ($currentImage && is_string($currentImage) && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
         $oldPath = '../public/images/users/' . $currentImage;
         if (file_exists($oldPath)) {
             unlink($oldPath);
@@ -114,7 +115,7 @@ function updateUserAvatar($pdo, $userId, $avatarUrl, $currentImage) {
 }
 
 function deleteUserAvatar($pdo, $userId, $currentImage) {
-    if ($currentImage && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
+    if ($currentImage && is_string($currentImage) && strpos($currentImage, 'http') === false && $currentImage !== 'user.png') {
         $oldPath = '../public/images/users/' . $currentImage;
         if (file_exists($oldPath)) unlink($oldPath);
     }
@@ -127,6 +128,4 @@ function deleteUserAvatar($pdo, $userId, $currentImage) {
     
     return ['success' => false, 'message' => 'Помилка при видаленні аватара'];
 }
-
-
 ?>
