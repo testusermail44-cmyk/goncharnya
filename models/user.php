@@ -31,14 +31,12 @@ function loginUser($pdo, $email, $pass, $remember = false)
         return false;
     }
     
-    $_SESSION['pottery_user'] = (object)[
-        'id' => $user->id,
-        'name' => $user->name,
-        'surname' => $user->surname,
-        'admin' => $user->admin,
-        'email' => $user->email,
-        'image' => $user->image
-    ];
+    $_SESSION['pottery_user']['id'] = $user->id;
+    $_SESSION['pottery_user']['name'] = $user->name;
+    $_SESSION['pottery_user']['surname'] = $user->surname;
+    $_SESSION['pottery_user']['admin'] = $user->admin;
+    $_SESSION['pottery_user']['email'] = $user->email;
+    $_SESSION['pottery_user']['image'] = $user->image;
     
     if ($remember) {
         setcookie(
